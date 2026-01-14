@@ -1,0 +1,10 @@
+================================================================================
+ASSET MANAGEMENT
+================================================================================
+
+Gerencia todo o ciclo de vida de ativos de TI (hardware, software, licenças).
+Objetivo: saber O QUE você tem, ONDE está, QUEM usa e QUANTO custa.
+Controla inventário completo: computadores, servidores, licenças, contratos.
+Ciclo: planejar → adquirir → implementar → operar → descartar.
+Previne desperdício, garante conformidade legal e otimiza custos de TI.
+================================================================================

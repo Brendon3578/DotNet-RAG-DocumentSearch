@@ -1,0 +1,10 @@
+================================================================================
+CHANGE MANAGEMENT
+================================================================================
+
+Controla todas as mudanças em sistemas de TI para minimizar riscos e impactos.
+Objetivo: garantir que mudanças sejam seguras, testadas e documentadas.
+Processo: criar RFC → avaliar risco → aprovar (CAB) → executar → revisar.
+Tipos: Standard (rotineira), Normal (requer aprovação), Emergency (urgente).
+Sempre deve ter plano de rollback (como reverter se algo der errado).
+================================================================================

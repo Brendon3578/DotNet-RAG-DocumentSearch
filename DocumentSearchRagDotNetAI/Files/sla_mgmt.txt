@@ -1,0 +1,10 @@
+================================================================================
+SERVICE LEVEL MANAGEMENT
+================================================================================
+
+Define e monitora acordos de nível de serviço (SLA) entre TI e clientes.
+SLA especifica: disponibilidade esperada, tempo de resposta, qualidade do serviço.
+Objetivo: alinhar expectativas e garantir que TI entregue conforme prometido.
+Exemplo: "Sistema disponível 99.9% do tempo" ou "Resolver incidente crítico em 4h".
+Medido continuamente com relatórios mensais mostrando se metas foram cumpridas.
+================================================================================

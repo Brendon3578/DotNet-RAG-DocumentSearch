@@ -1,0 +1,10 @@
+================================================================================
+PROBLEM MANAGEMENT
+================================================================================
+
+Identifica e elimina as causas raiz dos incidentes para prevenir recorrências.
+Foco em descobrir "POR QUE" algo quebra, não apenas consertar rapidamente.
+Processo: identificar padrão → investigar causa → documentar → propor solução permanente.
+Usa técnicas como 5 Porquês e análise de Pareto para encontrar causas reais.
+Workaround é solução temporária; solução definitiva elimina o problema para sempre.
+================================================================================

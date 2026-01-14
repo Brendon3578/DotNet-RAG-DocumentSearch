@@ -1,0 +1,10 @@
+================================================================================
+INCIDENT MANAGEMENT
+================================================================================
+
+Gerencia interrupções não planejadas ou problemas que afetam serviços de TI.
+Objetivo: restaurar o serviço normal o mais rápido possível.
+Processo: registrar incidente → priorizar → investigar → resolver → fechar.
+Priorização baseada em Impacto × Urgência (P1=Crítico, P2=Alto, P3=Médio).
+Diferença importante: Incidente trata o sintoma, Problema busca a causa raiz.
+================================================================================

@@ -1,0 +1,10 @@
+================================================================================
+ITIL - INTRODUÇÃO
+================================================================================
+
+ITIL é um conjunto de boas práticas para gerenciar serviços de TI de forma eficiente.
+Versão atual: ITIL 4 (2019), com foco em entregar valor ao cliente.
+Possui 4 dimensões: Pessoas/Organização, Tecnologia/Informação, Parceiros, Processos.
+Sistema de Valor com 34 práticas divididas em Gestão Geral, Gestão de Serviço e Técnica.
+Benefícios: reduz custos, melhora qualidade, alinha TI com negócio.
+================================================================================
