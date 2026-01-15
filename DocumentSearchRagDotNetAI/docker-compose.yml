@@ -1,5 +1,6 @@
 version: '3.8'
-
+## Docker Compose se achar necessário, mas é melhor se ter um ollama local rodando
+## necessário ter os models de: deepseek-r1:8b e bge-m3
 services:
   ollama:
     image: ollama/ollama:latest
