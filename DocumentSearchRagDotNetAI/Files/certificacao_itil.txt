@@ -1,0 +1,16 @@
+﻿================================================================================
+CERTIFICAÇÃO ITIL
+================================================================================
+
+Uma certificação ITIL comprova que o profissional de TI tem o conhecimento
+das boas práticas de Gerenciamento de Serviços de TI (ITSM) definidas pela
+ITIL (Biblioteca de Infraestrutura de TI).
+Em linhas gerais, é uma credencial reconhecida internacionalmente que mostra
+domínio dos processos e conceitos do framework ITIL.
+
+A versão atual do framework, a ITIL 4, foi lançada em 2019 e traz a certificação ITIL 4 Foundation
+como porta de entrada para todos os profissionais. Se este é seu foco, é importante
+saber que a busca por esse certificado segue em alta, já que muitas empresas olham
+para a ITIL 4 ao planejar maturidade e eficiência em TI. 
+
+================================================================================

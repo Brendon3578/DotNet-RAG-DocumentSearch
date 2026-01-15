@@ -6,7 +6,7 @@ using Microsoft.KernelMemory.Configuration;
 using System.Text.RegularExpressions;
 using static DocumentSearchRagDotNetAI.Utils.ProgramLogger;
 
-LogInfo("Iniciando aplicação RAG (Retrieval-Augmented Generation) para consulta de base de documentos corporativa.");
+LogInfo("[SETUP] Iniciando aplicação RAG (Retrieval-Augmented Generation) para consulta de base de documentos corporativa.");
 
 // Configuração do modelo de LLM (Large Language Model) para geração de texto e do modelo de Embeddings para vetorização.
 var config = new OllamaConfig
@@ -89,28 +89,23 @@ foreach (var documentFilePath in documentsFiles)
                 { "fonte", "interna" }
             });
 
-        LogSuccess($"Documento '{parsedFileName}' processado e indexado com sucesso.");
-    }
-    catch (HttpRequestException ex)
-    {
-        LogError($"Falha na comunicação com o serviço Ollama, verifique se o serviço está ativo: {ex.Message}");
-        LogError(ex.StackTrace ?? "Sem stacktrace");
+        LogSuccess($"[INGEST] [SUCESSO] Documento indexado: '{parsedFileName}'");
     }
     catch (Exception ex)
     {
-        LogError($"Falha na ingestão do arquivo: {ex.Message}");
-        LogError(ex.StackTrace ?? "Sem stacktrace");
+        LogError($"[INGEST] [ERRO] Falha na ingestão do arquivo '{documentFilePath}': {ex.Message}");
+        LogError(ex.StackTrace ?? "Stacktrace indisponível");
         throw;
     }
 }
 
 
 
-LogInfo("Sistema RAG inicializado e pronto para processar consultas.");
+LogInfo("[SETUP] Sistema RAG inicializado e pronto para processar consultas.");
 
 while (true)
 {
-    LogInfo("Digite sua pergunta sobre as políticas da empresa (ou 'sair' para encerrar):");
+    LogInfo("[INTERFACE] Digite sua pergunta sobre as políticas da empresa (ou 'sair' para encerrar):");
 
     var question = Console.ReadLine();
 
@@ -154,6 +149,8 @@ while (true)
     //    - Filtro aplicado: Apenas documentos com tags tipo=politica e departamento=rh.
     // 3. Augmentation (Enriquecimento): Os chunks encontrados são anexados ao prompt como contexto.
     // 4. Generation (Geração): O LLM gera a resposta baseada apenas nesse contexto enriquecido.
+    LogInfo($"[RAG] Processando pergunta: \"{question}\"...");
+
     var response = await kernelMemory.AskAsync(
         securePrompt,
         filter: new MemoryFilter()
@@ -165,17 +162,17 @@ while (true)
 
     var duration = endTime - startTime;
 
-    Console.WriteLine($"\nTempo de processamento: {duration.TotalSeconds:F2} segundos");
+    LogInfo($"[PERFORMANCE] Tempo de processamento: {duration.TotalSeconds:F2} segundos");
 
     LogAIResponse(response.Result);
 
     if (response.RelevantSources.Count == 0)
     {
-        Log("Nenhum contexto relevante encontrado na base de documentos.");
+        LogWarning("[RAG] Nenhum contexto relevante encontrado na base de documentos.");
     }
     else
     {
-        Log("\n\n --- Contexto Recuperado (RAG Retrieval) ---");
+        LogInfo("\n[RAG] --- Contexto Recuperado (RAG Retrieval) ---");
 
         // Ordena as fontes pela relevância do primeiro chunk encontrado
         var relevantSourceOrderedByRelevant = response.RelevantSources
@@ -187,10 +184,15 @@ while (true)
         foreach (var source in response.RelevantSources)
         {
             // Exibe a fonte e o grau de similaridade (Relevance Score)
-            Log($"\n--> Fonte: {source.DocumentId} (Arquivo: '{source.SourceName}') | Relevância: {source.Partitions.FirstOrDefault()?.Relevance:f5}");
-            //Log($"\nTrechos:");
-            source.Partitions.ForEach(partition => Log($"\n- {partition.Text}"));
-            Log("\n ---------------------");
+            Log($"[SOURCE] ID: {source.DocumentId} | Arquivo: '{source.SourceName}' | Relevância: {source.Partitions.FirstOrDefault()?.Relevance:f5}");
+            
+            // source.Partitions.ForEach(partition => Log($"\n- {partition.Text}")); 
+            // Melhorando a formatação dos trechos
+            foreach(var partition in source.Partitions)
+            {
+                 Log($"-- Trecho: {partition.Text}");
+            }
+            Log("--------------------------------------------------");
         }
         Console.ForegroundColor = previousColor;
     }
@@ -200,7 +202,7 @@ while (true)
     .SelectMany(s => s.Partitions)
     .Average(p => p.Relevance);
 
-    LogInfo($"\nRelevância média dos trechos: {avgRelevance:F4}");
+    LogInfo($"[METRICS] Relevância média dos trechos: {avgRelevance:F4}\n");
 
 }
 ;

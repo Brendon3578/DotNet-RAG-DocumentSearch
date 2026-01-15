@@ -1,0 +1,11 @@
+================================================================================
+CMDB
+================================================================================
+
+CMDB (Configuration Management Database) é um banco de dados centralizado que armazena informações
+detalhadas sobre os componentes (Itens de Configuração - CIs) de uma infraestrutura de TI e as relações
+entre eles, como hardware, software, sistemas e pessoas, fornecendo visibilidade essencial para o Gerenciamento de Serviços de TI (ITSM).
+
+O CMDB rastreia a localização de qualquer alteração em todos esses ativos e processos, juntamente com seus atributos e relações entre si.
+
+================================================================================

@@ -51,6 +51,14 @@ public static class ProgramLogger
     }
 
     /// <summary>
+    /// Registra uma mensagem de aviso (Warning level) via ILogger.
+    /// </summary>
+    public static void LogWarning(string message)
+    {
+        _logger.LogWarning(message);
+    }
+
+    /// <summary>
     /// Registra uma mensagem de sucesso com destaque visual (cor verde).
     /// </summary>
     public static void LogSuccess(string message)
