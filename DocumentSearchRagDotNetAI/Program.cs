@@ -91,6 +91,11 @@ foreach (var documentFilePath in documentsFiles)
 
         LogSuccess($"Documento '{parsedFileName}' processado e indexado com sucesso.");
     }
+    catch (HttpRequestException ex)
+    {
+        LogError($"Falha na comunicação com o serviço Ollama, verifique se o serviço está ativo: {ex.Message}");
+        LogError(ex.StackTrace ?? "Sem stacktrace");
+    }
     catch (Exception ex)
     {
         LogError($"Falha na ingestão do arquivo: {ex.Message}");
