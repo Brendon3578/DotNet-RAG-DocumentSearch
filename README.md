@@ -14,9 +14,7 @@ Este projeto é uma **aplicação de console em C#** criada para **testar e estu
 
 A aplicação **simula a consulta a uma base de conhecimento corporativa**, como uma `biblioteca de documentos` internos de uma empresa (políticas, normas, manuais, etc).
 
-⚠️ **Escopo intencionalmente simples**
-Este projeto **não é uma API**, **não é produção**, e **não possui interface gráfica**.
-O foco é **entender o fluxo completo de RAG** de ponta a ponta.
+![Exweemplo de execução](./docs/exemplo-terminal.png)
 
 ---
 
@@ -32,6 +30,118 @@ O foco é **entender o fluxo completo de RAG** de ponta a ponta.
     * `deepseek-r1:8b` - [Modelo de LLM](https://ollama.com/library/deepseek-r1:8b)
   * **Modelo de Embeddings:**
     * `bge-m3` (1024 dimensões) - [Modelo de Geração de Embeddings](https://ollama.com/library/bge-m3)
+
+### Fluxo simples do código estruturado
+
+```csharp
+using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.AI.Ollama;
+using Microsoft.KernelMemory.Configuration;
+
+LogInfo("[SETUP] Iniciando aplicação RAG (Retrieval-Augmented Generation) para consulta de base de documentos corporativa.");
+
+// Configuração do modelo de LLM (Large Language Model) para geração de texto e do modelo de Embeddings para vetorização.
+var config = new OllamaConfig
+{
+    Endpoint = "http://localhost:11434", // Endpoint local do serviço Ollama
+    TextModel = new OllamaModelConfig("deepseek-r1:8b", 131072), // Modelo LLM (DeepSeek). Contexto de 131k tokens permite processar prompts extensos.
+    EmbeddingModel = new OllamaModelConfig("bge-m3", 1024) // Modelo de Embeddings atual (bge-m3). Gera vetores de 1024 dimensões para alta precisão semântica.
+};
+
+// Inicializa a construção do KernelMemory integrando com Ollama.
+// O KernelMemory abstrai a complexidade de ingestão, armazenamento vetorial e recuperação de informações.
+var memoryBuilder = new KernelMemoryBuilder()
+    .WithOllamaTextGeneration(config)    // Configura o gerador de texto (LLM)
+    .WithOllamaTextEmbeddingGeneration(config) // Configura o gerador de embeddings (Vetorização)
+    .WithCustomTextPartitioningOptions(new TextPartitioningOptions
+    {
+        // Configuração de Chunking (Particionamento de texto) -> Divide os documentos em pedaços menores para indexação e busca vetorial.
+        MaxTokensPerParagraph = 120, // Tamanho máximo do chunk em tokens. Chunks menores focam em conceitos específicos, melhorando a precisão da busca.
+        OverlappingTokens = 30 // Sobreposição de tokens entre chunks adjacentes para preservar o contexto nas quebras de texto.
+    });
+
+var kernelMemory = memoryBuilder.Build();
+
+LogInfo("Iniciando processo de ingestão e vetorização de documentos...");
+
+var documentsFiles = DocumentService.GetAllTxtDocumentsFromDirectoryPath("Files");
+
+foreach (var documentFilePath in documentsFiles)
+{
+    await kernelMemory.ImportDocumentAsync(
+        filePath: documentFilePath,
+        documentId: documentFilePath,
+        tags: new TagCollection
+        {
+            { "tipo", "politica" },
+            { "departamento", "rh" },
+            { "fonte", "interna" }
+        });
+
+    LogSuccess($"[INGEST] [SUCESSO] Documento indexado: '{documentFilePath}'");
+}
+
+LogInfo("[SETUP] Sistema RAG inicializado e pronto para processar consultas.");
+
+while (true)
+{
+    LogInfo("[INTERFACE] Digite sua pergunta sobre as políticas da empresa (ou 'sair' para encerrar):");
+
+    var question = Console.ReadLine();
+
+    // Prompt Engineering: Definição da "persona" e regras estritas para o modelo.
+    // O objetivo é evitar alucinações (respostas fora do contexto) e manter o tom corporativo.
+    var securePrompt = $"""
+        Você é um assistente corporativo.
+
+        INSTRUÇÕES OBRIGATÓRIAS:
+        - Responda SOMENTE com base no CONTEXTO fornecido.
+        - NÃO utilize conhecimento externo.
+        - NÃO faça suposições.
+        - Se não houver informação suficiente, responda EXATAMENTE:
+          "Desculpe, não tenho essa informação no momento."
+
+        FORMATO DA RESPOSTA:
+        - Resposta curta e objetiva e no máximo 5 linhas
+
+        PERGUNTA:
+        {question}
+    """;
+
+    LogInfo($"[RAG] Processando pergunta: \"{question}\"...");
+
+    var response = await kernelMemory.AskAsync(
+        securePrompt,
+        filter: new MemoryFilter().ByTag("tipo", "politica").ByTag("departamento", "rh")
+    );
+
+    // Resposta do Prompt gerado pela LLM exibido no console
+    LogAIResponse(response.Result);
+
+    if (response.RelevantSources.Count > 0)
+    {
+        LogInfo("\n[RAG] --- Contexto Recuperado (RAG Retrieval) ---");
+
+        var relevantSourceOrderedByRelevant = response.RelevantSources
+            .OrderByDescending(source => source.Partitions.FirstOrDefault()?.Relevance)
+            .ToList(); // Ordena as fontes pela relevância do primeiro chunk encontrado
+
+        foreach (var source in response.RelevantSources)
+        {
+            Log($"[SOURCE] ID: {source.DocumentId} | Arquivo: '{source.SourceName}' | Relevância: {source.Partitions.FirstOrDefault()?.Relevance:f5}");
+            
+            foreach(var partition in source.Partitions)
+            {
+                 Log($"-- Trecho: {partition.Text}");
+            }
+        }
+    }
+};
+```
+
+⚠️ **Escopo intencionalmente simples**
+Este projeto **não é uma API**, **não é produção**, e **não possui interface gráfica**.
+O foco é **entender o fluxo completo de RAG** de ponta a ponta.
 
 ### Conceitos de IA e RAG
 

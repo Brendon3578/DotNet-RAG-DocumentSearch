@@ -6,7 +6,7 @@ using Microsoft.KernelMemory.Configuration;
 using System.Text.RegularExpressions;
 using static DocumentSearchRagDotNetAI.Utils.ProgramLogger;
 
-LogInfo("[SETUP] Iniciando aplicação RAG (Retrieval-Augmented Generation) para consulta de base de documentos corporativa.");
+LogInfo("[SETUP] Iniciando aplicação RAG (Retrieval-Augmented Generation) para consulta de documentos.");
 
 // Configuração do modelo de LLM (Large Language Model) para geração de texto e do modelo de Embeddings para vetorização.
 var config = new OllamaConfig
@@ -50,13 +50,14 @@ memoryBuilder.Services.ConfigureHttpClientDefaults(config =>
 var kernelMemory = memoryBuilder.Build();
 
 
-LogInfo("Iniciando processo de ingestão e vetorização de documentos...");
+//LogInfo("Iniciando processo de ingestão e vetorização de documentos...");
 
 // --- Ingestão de Dados (Indexing) ---
 // Lê os arquivos do diretório 'Files', processa o texto, gera embeddings e armazena na memória vetorial.
 
 var documentsFiles = DocumentService.GetAllTxtDocumentsFromDirectoryPath("Files");
 
+var successfullIngestionsDocuments = new List<string>();
 
 foreach (var documentFilePath in documentsFiles)
 {
@@ -64,15 +65,14 @@ foreach (var documentFilePath in documentsFiles)
     {
         var fileExists = File.Exists(documentFilePath);
 
+        if (!fileExists)
+            throw new FileNotFoundException($"Arquivo não encontrado: {documentFilePath}");
+
         var fileInfo = new FileInfo(documentFilePath);
-        var fileName = fileInfo.Name;
 
         // Normalização do nome do arquivo para garantir um DocumentId válido no sistema.
         // Substitui caracteres não alfanuméricos por sublinhado.
-        var parsedFileName = Regex.Replace(fileName, @"[^a-zA-Z0-9]", "_");
-
-        if (!fileExists)
-            throw new FileNotFoundException($"Arquivo não encontrado: {documentFilePath}");
+        var parsedFileName = Regex.Replace(fileInfo.Name, @"[^a-zA-Z0-9]", "_");
 
         // Importa o documento para o KernelMemory:
         // 1. Extração de texto.
@@ -89,19 +89,17 @@ foreach (var documentFilePath in documentsFiles)
                 { "fonte", "interna" }
             });
 
-        LogSuccess($"[INGEST] [SUCESSO] Documento indexado: '{parsedFileName}'");
+        successfullIngestionsDocuments.Add(parsedFileName);
     }
     catch (Exception ex)
     {
-        LogError($"[INGEST] [ERRO] Falha na ingestão do arquivo '{documentFilePath}': {ex.Message}");
-        LogError(ex.StackTrace ?? "Stacktrace indisponível");
-        throw;
+        LogError($"[INGEST] [ERRO] Falha na ingestão do arquivo '{documentFilePath}': {ex.Message}\n\n{ex.StackTrace}");
     }
 }
 
+LogSuccess($"[INGEST] [SUCESSO] Documentos indexado: {string.Join(", ", successfullIngestionsDocuments)}\n");
 
-
-LogInfo("[SETUP] Sistema RAG inicializado e pronto para processar consultas.");
+LogInfo("[SETUP] Sistema RAG inicializado e pronto para processar consultas.\n");
 
 while (true)
 {
@@ -132,7 +130,7 @@ while (true)
 
         FORMATO DA RESPOSTA:
         - Resposta curta e objetiva
-        - No máximo 5 linhas
+        - No máximo 10 linhas
 
         PERGUNTA:
         {question}
@@ -149,7 +147,13 @@ while (true)
     //    - Filtro aplicado: Apenas documentos com tags tipo=politica e departamento=rh.
     // 3. Augmentation (Enriquecimento): Os chunks encontrados são anexados ao prompt como contexto.
     // 4. Generation (Geração): O LLM gera a resposta baseada apenas nesse contexto enriquecido.
-    LogInfo($"[RAG] Processando pergunta: \"{question}\"...");
+
+    var previousColor = Console.ForegroundColor;
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    
+    Console.WriteLine($"\n[RAG] Processando pergunta: \"{question}\"...\n");
+    
+    Console.ForegroundColor = previousColor;
 
     var response = await kernelMemory.AskAsync(
         securePrompt,
@@ -179,7 +183,7 @@ while (true)
             .OrderByDescending(source => source.Partitions.FirstOrDefault()?.Relevance)
             .ToList();
 
-        var previousColor = Console.ForegroundColor;
+        //var previousColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Cyan;
         foreach (var source in response.RelevantSources)
         {

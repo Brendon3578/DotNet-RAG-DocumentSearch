@@ -2,6 +2,13 @@
 SERVICE LEVEL MANAGEMENT
 ================================================================================
 
+SLA significa Service Level Agreement (Acordo de Nível de Serviço), um contrato
+formal que define os padrões de qualidade, métricas (como tempo de resposta e
+disponibilidade), responsabilidades e penalidades entre um fornecedor de serviços
+e seu cliente, ou mesmo entre equipes internas, garantindo clareza, alinhamento de
+expectativas e um nível de desempenho esperado para os serviços prestados,
+especialmente em TI, suporte e outsourcing. 
+
 Define e monitora acordos de nível de serviço (SLA) entre TI e clientes.
 SLA especifica: disponibilidade esperada, tempo de resposta, qualidade do serviço.
 Objetivo: alinhar expectativas e garantir que TI entregue conforme prometido.
